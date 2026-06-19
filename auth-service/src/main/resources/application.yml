@@ -1,0 +1,42 @@
+server:
+  port: 9000
+spring:
+  application:
+    name: auth-service
+  datasource:
+    url: jdbc:postgresql://postgres-auth:5432/authdb
+    username: CHANGE_ME
+    password: CHANGE_ME
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+  flyway:
+    enabled: true
+    locations: classpath:/db/migration
+  data:
+    redis:
+      host: redis
+      port: 6379
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: abc123@gmail.com
+    password: kfgkdj3543l4kfdgfd654
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+twilio:
+  sid: dsf7fydf87sf68sdfsd7fdshfsdf68df6s
+  token: 4olfdusiaidf78sd6as8d7adsdhiadfs
+  number: ++18141234567
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka
+logging:
+  level:
+    '[org.springframework.security]': debug

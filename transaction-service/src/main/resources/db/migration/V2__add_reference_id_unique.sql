@@ -1,0 +1,1 @@
+ALTER TABLE transactions ADD CONSTRAINT uq_reference_id UNIQUE(reference_id);

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;auth-service/src/main/resources/db/migration/v1_create_user_and_roles.sql&apos; to &apos;V1__create_user_and_roles.sql&apos;" description="Rename resource &apos;v1_create_user_and_roles.sql&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/main/resources/db/migration/v1_create_user_and_roles.sql" name="V1__create_user_and_roles.sql" stamp="1772817254042" updateReferences="true"/>
+</session>

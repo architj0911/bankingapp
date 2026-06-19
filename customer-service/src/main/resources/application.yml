@@ -1,0 +1,36 @@
+server:
+  port: 8082
+spring:
+  application:
+    name: customer-service
+  datasource:
+    url: jdbc:postgresql://postgres-customer:5432/customerdb
+    username: db_username
+    password: db_password
+  jpa:
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://auth-service:9000/oauth2/jwks
+  cache: 
+    type: redis 
+    redis: 
+      time-to-live: 300000 
+  data: 
+    redis: 
+      host: redis 
+      port: 6379
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka
+setu:
+  base-url: https://dg-sandbox.setu.co
+  client-id: fdd87fgdfg-fdjgdfg768sd-ds6f5dsfs-vbc87fdg7s
+  client-secret: sd8ds7f6d7ftds7fds7f5sd7f8sdfs89df79
+  pan-product-id: df7sd8fsd-dsf878vcz-d8f7s8dfs-dc8v6cxv
+  digilocker-product-key: ixzucziycx87c6z86324234j2h3g4jjfds86sd8gs68f

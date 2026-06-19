@@ -1,0 +1,25 @@
+server:
+  port: 8888
+spring:
+  application:
+    name: config-server
+  security:
+    user:
+      name: YOUR_CONFIG_USERNAME
+      password: YOUR_CONFIG_PASSWORD
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/HindiCodeClass/banking-config-repo
+          default-label: main
+          clone-on-start: true
+          timeout: 10
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+        - health
+        - info
+        - metrics
