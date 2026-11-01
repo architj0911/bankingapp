@@ -1,0 +1,1 @@
+ALTER TABLE accounts ADD COLUMN version BIGINT DEFAULT 0;

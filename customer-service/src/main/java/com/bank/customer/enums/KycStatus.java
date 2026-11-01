@@ -1,0 +1,13 @@
+package com.bank.customer.enums;
+
+public enum KycStatus {
+	PENDING,
+	EMAIL_VERIFIED,
+	PAN_VERIFIED,
+	AADHAAR_VERIFIED,
+	FACE_VERIFIED,
+	KYC_VERIFIED,
+	VERIFIED,
+	FAILED,
+	REJECTED
+}

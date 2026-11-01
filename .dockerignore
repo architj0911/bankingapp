@@ -1,0 +1,10 @@
+.git
+.env
+.env.*
+**/target
+**/node_modules
+**/dist
+**/*.log
+*.rdb
+scratch
+presentation-tools
