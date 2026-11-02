@@ -26,11 +26,15 @@ public class LoginAuditEntity {
 @GeneratedValue(strategy = GenerationType.IDENTITY)
 		private Long id;
 	@Column(name = "user_name")
-		private String userName;
-		private boolean success;
-		@Column(name = "ip_address")
-		private String ipAddress;
-		private String reason;
+	private String userName;
+	@Column(name = "user_id")
+	private Long userId;
+	@Column(name = "event_type")
+	private String eventType;
+	private boolean success;
+	@Column(name = "ip_address")
+	private String ipAddress;
+	private String reason;
 		@Column(name = "login_time")
 		private LocalDateTime loginTime;
 }

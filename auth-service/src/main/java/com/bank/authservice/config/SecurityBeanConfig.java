@@ -58,7 +58,8 @@ public class SecurityBeanConfig {
 		http
 		.csrf(csrf -> csrf.disable())
 		  .authorizeHttpRequests(auth -> auth
-		      .requestMatchers("/user/register", "/auth/**").permitAll()
+		      .requestMatchers("/user/register", "/user/email/**", "/kyc/email/**", "/auth/**", "/error",
+		    		  "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 		      .requestMatchers("/admin/**").hasRole("ADMIN")
 		      .anyRequest().authenticated()
 		  )

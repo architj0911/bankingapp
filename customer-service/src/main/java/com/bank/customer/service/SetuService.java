@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SetuService {
 private final WebClient webClient;
+@Value("${setu.callback-url:http://localhost:8080/api/kyc/callback}")
+private String callbackUrl;
 @Value("${setu.base-url}")
 private String baseUrl;
 @Value("${setu.client-id}")
@@ -38,7 +40,7 @@ public String verifyPan(String pan) {
 			.retrieve().bodyToMono(String.class).block();
 }
 public String createDigilockerRequest() {
-	Map<String, Object> body = Map.of("redirectUrl","http://localhost:8080/api/kyc/callback");
+	Map<String, Object> body = Map.of("redirectUrl", callbackUrl);
 	return webClient.post()
 			.uri(baseUrl+"/api/digilocker")
 			.header("x-client-id", clientId)

@@ -19,12 +19,16 @@ import com.bank.account.service.AccountService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+import org.springframework.web.bind.annotation.PathVariable;
+
 @RestController
 @RequestMapping("/accounts")
 @RequiredArgsConstructor
 public class AccountController {
 private final AccountService service;
 private final AccountRepository accountRepository;
+
 @PreAuthorize("hasAuthority('CREATE_ACCOUNT')")
 @PostMapping
 public AccountResponse create(@RequestBody CreateAccountRequest request, HttpServletRequest httpRequest) {
@@ -32,14 +36,26 @@ public AccountResponse create(@RequestBody CreateAccountRequest request, HttpSer
 	String deviceId = httpRequest.getHeader("X-Device-Id");
 	return service.accountCreate(request, ip, deviceId);
 }
+
+@GetMapping("/me")
+public List<AccountResponse> getMyAccounts() {
+	return service.getMyAccounts();
+}
+
+@GetMapping("/{accountNumber}")
+public AccountResponse getAccountByNumber(@PathVariable String accountNumber) {
+	return service.getAccount(accountNumber);
+}
 @GetMapping("/internal")
 public AccountDto getAccountInternal(@RequestParam String accountNumber) {
     Account account = accountRepository.findByAccountNumber(accountNumber)
         .orElseThrow(() -> new RuntimeException("Account not found"));
     return AccountDto.builder()
         .accountNumber(account.getAccountNumber())
+        .customerId(account.getCustomerId())
         .balance(account.getBalance())
         .status(account.getStatus())
+        .currency(account.getCurrency())
         .build();
 }
 

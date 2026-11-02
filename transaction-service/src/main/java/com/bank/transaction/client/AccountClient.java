@@ -11,11 +11,12 @@ import com.bank.transaction.config.FeignSecurityConfig;
 import com.bank.transaction.dto.AccountDto;
 import com.bank.transaction.dto.BalanceUpdateRequest;
 
-@FeignClient(name = "account-service", configuration = FeignSecurityConfig.class)
+@FeignClient(name = "account-service", url = "${account-service.url:http://localhost:8083}", configuration = FeignSecurityConfig.class)
 public interface AccountClient {
 	@GetMapping("/accounts/internal")
 	AccountDto getAccount(@RequestParam String accountNumber);
 	@PostMapping("/accounts/internal/update-balance")
 	void updateBalance(@RequestBody BalanceUpdateRequest request);
-
+	@GetMapping("/accounts/me")
+	java.util.List<AccountDto> getMyAccounts();
 }

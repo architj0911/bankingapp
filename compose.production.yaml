@@ -1,0 +1,142 @@
+services:
+  zookeeper:
+    ports: !reset []
+  redis:
+    ports: !reset []
+  config-server:
+    ports: !reset []
+    build:
+      context: .
+      dockerfile: Dockerfile.java-service
+      args:
+        MODULE: config-server
+        ARTIFACT: config-server-1.0.0.jar
+    environment:
+      CONFIG_SERVER_USERNAME: ${CONFIG_SERVER_USERNAME:?Set CONFIG_SERVER_USERNAME in .env}
+      CONFIG_SERVER_PASSWORD: ${CONFIG_SERVER_PASSWORD:?Set CONFIG_SERVER_PASSWORD in .env}
+      CONFIG_GIT_URI: ${CONFIG_GIT_URI:?Set CONFIG_GIT_URI in .env}
+      CONFIG_GIT_BRANCH: ${CONFIG_GIT_BRANCH:-main}
+      CONFIG_GIT_USERNAME: ${CONFIG_GIT_USERNAME:-}
+      CONFIG_GIT_PASSWORD: ${CONFIG_GIT_PASSWORD:-}
+  eureka-server:
+    ports: !reset []
+    build:
+      context: .
+      dockerfile: Dockerfile.java-service
+      args:
+        MODULE: eureka-server
+        ARTIFACT: eureka-server-0.0.1-SNAPSHOT.jar
+  auth-service:
+    ports: !reset []
+    build:
+      context: .
+      dockerfile: Dockerfile.java-service
+      args:
+        MODULE: auth-service
+        ARTIFACT: auth-service-0.0.1-SNAPSHOT.jar
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      JWT_RSA_PRIVATE_KEY_BASE64: ${JWT_RSA_PRIVATE_KEY_BASE64:?Set persistent JWT signing key in .env}
+      JWT_RSA_PUBLIC_KEY_BASE64: ${JWT_RSA_PUBLIC_KEY_BASE64:?Set matching JWT public key in .env}
+      JWT_KEY_ID: ${JWT_KEY_ID:?Set stable JWT_KEY_ID in .env}
+      MAIL_HOST: ${MAIL_HOST:?Set MAIL_HOST in .env}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:?Set MAIL_USERNAME in .env}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:?Set MAIL_PASSWORD in .env}
+      MAIL_FROM: ${MAIL_FROM:?Set MAIL_FROM in .env}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-ApexBank Security}
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY: WARN
+  customer-service:
+    ports: !reset []
+    build:
+      context: .
+      dockerfile: Dockerfile.java-service
+      args:
+        MODULE: customer-service
+        ARTIFACT: customer-service-0.0.1-SNAPSHOT.jar
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      SETU_BASE_URL: ${SETU_BASE_URL:-https://dg-sandbox.setu.co}
+      SETU_CLIENT_ID: ${SETU_CLIENT_ID:-}
+      SETU_CLIENT_SECRET: ${SETU_CLIENT_SECRET:-}
+      SETU_PAN_PRODUCT_ID: ${SETU_PAN_PRODUCT_ID:-}
+      SETU_DIGILOCKER_PRODUCT_KEY: ${SETU_DIGILOCKER_PRODUCT_KEY:-}
+      SETU_CALLBACK_URL: ${SETU_CALLBACK_URL:?Set SETU_CALLBACK_URL to your HTTPS domain}
+  account-service:
+    ports: !reset []
+    build:
+      context: .
+      dockerfile: Dockerfile.java-service
+      args:
+        MODULE: account-service
+        ARTIFACT: account-service-0.0.1-SNAPSHOT.jar
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+  transaction-service:
+    ports: !reset []
+    build:
+      context: .
+      dockerfile: Dockerfile.java-service
+      args:
+        MODULE: transaction-service
+        ARTIFACT: transaction-service-0.0.1-SNAPSHOT.jar
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+  api-gateway:
+    ports: !reset []
+    build:
+      context: .
+      dockerfile: Dockerfile.java-service
+      args:
+        MODULE: api-gateway
+        ARTIFACT: api-gateway-1.0.0.jar
+  kafka:
+    ports: !reset []
+  postgres-account:
+    ports: !reset []
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+  postgres-customer:
+    ports: !reset []
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+  postgres-auth:
+    ports: !reset []
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+  postgres-transaction:
+    ports: !reset []
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports: !reset []
+    depends_on:
+      - api-gateway
+    networks:
+      - banking-network
+    restart: unless-stopped
+  caddy:
+    image: caddy:2-alpine
+    profiles: ["https"]
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:-localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+    networks:
+      - banking-network
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:

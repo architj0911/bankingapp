@@ -8,4 +8,6 @@ import com.bank.authservice.domain.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 	Optional<User> findByUserName(String username);
+	Optional<User> findByUserNameIgnoreCase(String username);
+	Optional<User> findByEmailIgnoreCase(String email);
 }

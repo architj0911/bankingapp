@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 import com.bank.account.enumrate.AccountStatus;
 import com.bank.account.enumrate.AccountType;
+import com.bank.account.enumrate.CurrencyCode;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -37,6 +38,8 @@ private Long customerId;
 private AccountType accountType;
 @Enumerated(EnumType.STRING)
 private AccountStatus status;
+@Enumerated(EnumType.STRING)
+private CurrencyCode currency;
 
 private BigDecimal balance;
 private LocalDateTime createdAt;

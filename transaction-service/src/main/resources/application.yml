@@ -4,35 +4,51 @@ spring:
   application:
     name: transaction-service
   datasource:
-    url: jdbc:postgresql://postgres-transaction:5432/transactiondb
-    username: postgres
-    password: root
+    url: jdbc:postgresql://${DB_HOST:postgres-transaction}:${DB_PORT:5432}/${DB_NAME:transactiondb}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:}
   jpa:
     hibernate:
-      ddl-auto: validate
-    show-sql: true
+      ddl-auto: update
+    show-sql: false
   security:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://auth-service:9000/oauth2/jwks
+          jwk-set-uri: ${AUTH_JWK_SET_URI:http://auth-service:9000/oauth2/jwks}
   flyway:
     enabled: true
     locations: classpath:db/migration
   kafka:
     bootstrap-servers:
-    - kafka:9092
+    - ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
     admin:
       auto-create: true
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       properties:
+        "[max.block.ms]": 1000
         "[spring.json.trusted.packages]": "*"
+  redis:
+    host: ${REDIS_HOST:redis}
+    port: ${REDIS_PORT:6379}
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka-server:8761/eureka
+      defaultZone: ${EUREKA_URL:http://eureka-server:8761/eureka}
+
+account-service:
+  url: ${ACCOUNT_SERVICE_URL:http://account-service:8083}
+
+customer-service:
+  url: ${CUSTOMER_SERVICE_URL:http://customer-service:8082}
+exchange-rate:
+  base-url: ${EXCHANGE_RATE_BASE_URL:https://open.er-api.com/v6/latest}
+  cache-ttl: 15m
+  max-stale: 15m
+transfer:
+  fee: 0.00
 resilience4j:
   circuitbreaker:
     instances:

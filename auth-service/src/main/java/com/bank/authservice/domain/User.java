@@ -18,6 +18,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "users")
 @Getter
@@ -31,6 +33,7 @@ public class User {
 	private Long id;
 	@Column(name = "user_name", unique = true, nullable = false)
 	private String userName;
+	@JsonIgnore
 	@Column(nullable = false)
 	private String password;
 	private boolean enabled = true;

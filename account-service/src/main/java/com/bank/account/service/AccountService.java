@@ -14,6 +14,7 @@ import com.bank.account.dto.CreateAccountRequest;
 import com.bank.account.dto.CustomerDto;
 import com.bank.account.entity.Account;
 import com.bank.account.enumrate.AccountStatus;
+import com.bank.account.enumrate.CurrencyCode;
 import com.bank.account.repository.AccountAuditRepository;
 import com.bank.account.repository.AccountRepository;
 import com.bank.account.security.SecurityUtil;
@@ -53,13 +54,18 @@ public AccountResponse accountCreate(CreateAccountRequest request, String ip, St
 			.accountNumber(accountNumber)
 			.customerId(customerId)
 			.accountType(request.getAccountType())
+			.currency(request.getCurrency() == null ? CurrencyCode.INR : request.getCurrency())
 			.balance(request.getIntialDeposit())
 			.status(AccountStatus.ACTIVE)
 			.createdAt(LocalDateTime.now())
 			.updatedAt(LocalDateTime.now())
 			.build();
 	Account saved =  repo.save(account);
-	kafkaTemplate.send("account-created-topic", account.getId().toString(), account);
+	try {
+		kafkaTemplate.send("account-created-topic", account.getId().toString(), account);
+	} catch (Exception e) {
+		log.warn("Failed to publish account-created-topic event to Kafka: {}", e.getMessage());
+	}
 	return map(saved);
 }
 @Transactional
@@ -100,11 +106,25 @@ private AccountResponse map(Account a) {
 			.type(a.getAccountType())
 			.balance(a.getBalance())
 			.status(a.getStatus())
+			.currency(a.getCurrency() == null ? CurrencyCode.INR : a.getCurrency())
 			.build();
 }
-@Cacheable(value = "account-cache", key = "#accountNumber")
 public AccountResponse getAccount(String accountNumber) {
+	Long userId = SecurityUtil.getUserId();
+	CustomerDto customer = feignClient.getCustomerByUserId(userId);
 	Account account = repo.findByAccountNumber(accountNumber).orElseThrow(()-> new RuntimeException("Account number not found"));
+	if (customer == null || !account.getCustomerId().equals(customer.getId())) {
+		throw new RuntimeException("Unauthorized access to account " + accountNumber);
+	}
 	return map(account);
+}
+
+public java.util.List<AccountResponse> getMyAccounts() {
+	Long userId = SecurityUtil.getUserId();
+	CustomerDto customer = feignClient.getCustomerByUserId(userId);
+	if (customer == null || customer.getId() == null) {
+		return java.util.Collections.emptyList();
+	}
+	return repo.findByCustomerId(customer.getId()).stream().map(this::map).toList();
 }
 }

@@ -14,7 +14,7 @@ public static void validateCustomer(CustomerDto customer) {
 	if(!"ACTIVE".equals(customer.getStatus())) {
 		throw new RuntimeException("customer is not ACTIVE");
 	}
-	if(!"VERIFIED".equals(customer.getKycStatus())) {
+	if(!"VERIFIED".equals(customer.getKycStatus()) && !"KYC_VERIFIED".equals(customer.getKycStatus())) {
 		throw new RuntimeException("kyc not verified");
 	}
 }

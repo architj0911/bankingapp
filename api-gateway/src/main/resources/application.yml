@@ -1,12 +1,81 @@
+server:
+  port: 8080
+
 spring:
   application:
     name: api-gateway
-  config:
-    import:
-    - optional:configserver:http://config-server:8888
   cloud:
     config:
-      username: configadmin
-      password: config@123
-  profiles:
-    active: dev
+      enabled: false
+    gateway:
+      routes:
+        - id: auth-service-kyc-email
+          uri: ${AUTH_SERVICE_URL:http://auth-service:9000}
+          predicates:
+            - Path=/api/kyc/email/**
+          filters:
+            - StripPrefix=1
+        - id: auth-service-api-register
+          uri: ${AUTH_SERVICE_URL:http://auth-service:9000}
+          predicates:
+            - Path=/api/auth/register
+          filters:
+            - SetPath=/user/register
+        - id: auth-service-api
+          uri: ${AUTH_SERVICE_URL:http://auth-service:9000}
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - RewritePath=/api/auth/(?<segment>.*), /auth/$\{segment}
+        - id: auth-service-user-api
+          uri: ${AUTH_SERVICE_URL:http://auth-service:9000}
+          predicates:
+            - Path=/api/user/**
+          filters:
+            - StripPrefix=1
+        - id: auth-service
+          uri: ${AUTH_SERVICE_URL:http://auth-service:9000}
+          predicates:
+            - Path=/auth/**,/oauth2/**,/user/**,/admin/**,/kyc/email/**
+          filters:
+            - StripPrefix=0
+        - id: customer-service
+          uri: ${CUSTOMER_SERVICE_URL:http://customer-service:8082}
+          predicates:
+            - Path=/api/customers/**,/api/kyc/**
+          filters:
+            - StripPrefix=1
+        - id: account-service
+          uri: ${ACCOUNT_SERVICE_URL:http://account-service:8083}
+          predicates:
+            - Path=/api/accounts/**
+          filters:
+            - StripPrefix=1
+        - id: transaction-service
+          uri: ${TRANSACTION_SERVICE_URL:http://transaction-service:8084}
+          predicates:
+            - Path=/api/transactions/**
+          filters:
+            - StripPrefix=1
+        - id: exchange-rate-service
+          uri: ${TRANSACTION_SERVICE_URL:http://transaction-service:8084}
+          predicates:
+            - Path=/api/exchange-rates/**
+          filters:
+            - StripPrefix=1
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${AUTH_JWK_SET_URI:http://auth-service:9000/oauth2/jwks}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://eureka-server:8761/eureka}
+
+management:
+  otlp:
+    metrics:
+      export:
+        enabled: false

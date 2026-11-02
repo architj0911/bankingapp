@@ -3,6 +3,8 @@ package com.bank.transaction.resilience;
 import java.util.concurrent.CompletableFuture;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import com.bank.transaction.client.AccountClient;
 import com.bank.transaction.dto.AccountDto;
@@ -23,10 +25,21 @@ public class AccountProtectionService {
 	 @CircuitBreaker(name = "accountService", fallbackMethod = "accountFallBack")
 	@TimeLimiter(name = "accountService")
 	  public CompletableFuture<AccountDto> getAccountWithProtection(String accountNumber) {
-		  return CompletableFuture.supplyAsync(() -> accountClient.getAccount(accountNumber));
+		  RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+		  return CompletableFuture.supplyAsync(() -> {
+			  try {
+				  if (attributes != null) {
+					  RequestContextHolder.setRequestAttributes(attributes);
+				  }
+				  return accountClient.getAccount(accountNumber);
+			  } finally {
+				  RequestContextHolder.resetRequestAttributes();
+			  }
+		  });
 	  }
 	  public CompletableFuture<AccountDto> accountFallBack(String accountNumber, Exception ex) {
-		  throw new RuntimeException("Account service unavailable, Please try again later");
+		  throw new RuntimeException("Account service unavailable, Please try again later", ex);
 	  }
 
 }
+

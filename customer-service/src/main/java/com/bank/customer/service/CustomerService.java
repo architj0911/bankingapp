@@ -46,12 +46,24 @@ public CustomerResponse get(Long id) {
 	return mapToResponse(customer);
 }
 
+public CustomerResponse getProfileByUserId(Long userId) {
+	Customer customer = customerRepo.findByUserIdAndIsDeletedFalse(userId)
+			.orElseThrow(() -> new ResourceNotFoundException("Customer profile not found for user: " + userId));
+	return mapToResponse(customer);
+}
+
 private CustomerResponse mapToResponse(Customer c) {
-	return CustomerResponse.builder().id(c.getId())
+	KycDetails kyc = kycRepo.findByCustomerId(c.getId()).orElse(null);
+	String kycStatusStr = kyc != null && kyc.getStatus() != null ? kyc.getStatus().name() : "NOT_SUBMITTED";
+	return CustomerResponse.builder()
+			.id(c.getId())
+			.userId(c.getUserId())
 			.name(c.getName())
 			.email(c.getEmail())
 			.phone(c.getPhoneNumber())
-			.status(c.getStatus()).build();
+			.status(c.getStatus())
+			.kycStatus(kycStatusStr)
+			.build();
 }
 @Cacheable( 
 value="customer-user-cache", 
@@ -66,7 +78,8 @@ private CustomerDto mapToDto(Customer c, KycDetails kyc) {
 	CustomerDto dto = new CustomerDto();
 	dto.setId(c.getId());
 	dto.setStatus(c.getStatus().name());
-	dto.setKycStatus(kyc.getStatus().name());
+	dto.setKycStatus(kyc != null && kyc.getStatus() != null ? kyc.getStatus().name() : "NOT_SUBMITTED");
 	return dto;
 }
 }
+

@@ -1,0 +1,4 @@
+ALTER TABLE accounts ADD COLUMN IF NOT EXISTS currency VARCHAR(3);
+UPDATE accounts SET currency = 'INR' WHERE currency IS NULL;
+ALTER TABLE accounts ALTER COLUMN currency SET DEFAULT 'INR';
+ALTER TABLE accounts ALTER COLUMN currency SET NOT NULL;

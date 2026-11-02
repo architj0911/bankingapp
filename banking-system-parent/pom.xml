@@ -20,7 +20,7 @@
   <module>../api-gateway</module>
   <module>../auth-service</module>
   <module>../eureka-server</module>
-   <module>../customer-server</module>
+   <module>../customer-service</module>
    <module>../account-service</module>
    <module>../transaction-service</module>
   </modules>

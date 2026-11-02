@@ -4,39 +4,45 @@ spring:
   application:
     name: auth-service
   datasource:
-    url: jdbc:postgresql://postgres-auth:5432/authdb
-    username: CHANGE_ME
-    password: CHANGE_ME
+    url: jdbc:postgresql://${DB_HOST:postgres-auth}:${DB_PORT:5432}/authdb
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:}
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: false
   flyway:
     enabled: true
     locations: classpath:/db/migration
   data:
     redis:
-      host: redis
-      port: 6379
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: abc123@gmail.com
-    password: kfgkdj3543l4kfdgfd654
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
-twilio:
-  sid: dsf7fydf87sf68sdfsd7fdshfsdf68df6s
-  token: 4olfdusiaidf78sd6as8d7adsdhiadfs
-  number: ++18141234567
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka-server:8761/eureka
+      defaultZone: http://${EUREKA_HOST:eureka-server}:8761/eureka
 logging:
   level:
     '[org.springframework.security]': debug
+app:
+  mail:
+    from: ${MAIL_FROM:${spring.mail.username:}}
+    from-name: ${MAIL_FROM_NAME:ApexBank Security}
+  auth:
+    expose-dev-otp: false
